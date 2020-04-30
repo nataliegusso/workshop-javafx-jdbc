@@ -19,7 +19,7 @@ public class Main extends Application {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/MainView.fxml"));
 			ScrollPane scrollPane = loader.load();  //Default: Parent parent = loader.load(); Mas eu sei que é uma ScrollPane, posso mudar
 			
-			scrollPane.setFitToHeight(true); //Ajustar o scrollPane à janela
+			scrollPane.setFitToHeight(true); //Ajustar o scrollPane à janela 
 			scrollPane.setFitToWidth(true);
 			
 			mainScene = new Scene(scrollPane);
