@@ -1,6 +1,5 @@
 package model.services;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import model.dao.DaoFactory;
@@ -15,7 +14,6 @@ public class DepartmentService {
 		return dao.findAll();  //acessa o BD
 	}
 	
-	
 /*	private DepartmentService service;  //Declarar uma dependêcia dessa classe com o controlador departmentList
 
 	//Lá na classe DepartmentList: setDepartmentService: Injetar a independência na classe sem ser forte, sem colocar a implementação (new Department)
@@ -28,4 +26,12 @@ public class DepartmentService {
 		return list;
 	}
 */	
+	public void saveOrUpdate(Department obj) {  //salva ou atualiza o departamento
+		if (obj.getId() == null) {  //se id é nulo, é um novo department, então salva
+			dao.insert(obj);
+		}
+		else {
+			dao.update(obj);
+		}
+	}
 }
