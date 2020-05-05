@@ -111,6 +111,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 			dialogStage.showAndWait();
 		}
 		catch (IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
 	}
@@ -121,6 +122,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		
 	}
 
+	//https://stackoverflow.com/questions/32282230/fxml-javafx-8-tableview-make-a-delete-button-in-each-row-anddelete-the-row-a
 	private void initEditButtons() {  //cria um botão de edição em cada linha da tabela para editar o departamento que quiser
 		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));  // é chamado lá no updateTableViewData
 		tableColumnEDIT.setCellFactory(param -> new TableCell<Department, Department>() {  //CellFactory: instancia os botões e configura o evento
@@ -141,6 +143,7 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		});
 	}
 	
+	//https://stackoverflow.com/questions/32282230/fxml-javafx-8-tableview-make-a-delete-button-in-each-row-anddelete-the-row-a
 	private void initRemoveButtons() {  //cria um botão remove em cada linha da tabela para apagar o departamento que quiser //o método é chamado lá no updateTableView
 		tableColumnREMOVE.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
 		tableColumnREMOVE.setCellFactory(param -> new TableCell<Department, Department>() {
