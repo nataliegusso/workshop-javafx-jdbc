@@ -3,12 +3,15 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import application.Main;
+import db.DbIntegrityException;
 import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +21,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -40,6 +45,12 @@ public class DepartmentListController implements Initializable, DataChangeListen
 	@FXML
 	private TableColumn<Department, String> tableColumnName;
 
+	@FXML
+	private TableColumn<Department, Department> tableColumnEDIT;  //acrescenta um botão de atualizar em cada uma das linhas da tabela
+
+	@FXML
+	private TableColumn<Department, Department> tableColumnREMOVE;  //acrescenta um botão de remover em cada uma das linhas da tabela
+	
 	@FXML
 	private Button btNew;
 	
@@ -76,6 +87,8 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		List<Department> list = service.findAll();   //recupera a lista
 		obsList = FXCollections.observableArrayList(list); //carrega no obsList
 		tableViewDepartment.setItems(obsList);		//mostra na tela
+		initEditButtons(); //mostra o botão de edição dos departamentos que abre o formulário de edição
+		initRemoveButtons(); //mostra o botão remove dos departamentos 
 	}
 	
 	private void createDialogForm(Department obj, String absoluteName, Stage parentStage) {  //carrega a janela p preencher o formulário do departamento
@@ -107,7 +120,59 @@ public class DepartmentListController implements Initializable, DataChangeListen
 		updateTableView();  //...atualiza dados na tabela
 		
 	}
-	
-}
 
- 
+	private void initEditButtons() {  //cria um botão de edição em cada linha da tabela para editar o departamento que quiser
+		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));  // é chamado lá no updateTableViewData
+		tableColumnEDIT.setCellFactory(param -> new TableCell<Department, Department>() {  //CellFactory: instancia os botões e configura o evento
+			private final Button button = new Button("edit");
+		
+			@Override
+			protected void updateItem(Department obj, boolean empty) {
+				super.updateItem(obj, empty);
+				if (obj == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(
+					event -> createDialogForm(  //chama o método que cria a janela do formulário
+					obj, "/gui/DepartmentForm.fxml",Utils.currentStage(event)));  //obj: é o departamento da linha de edição que for clicada
+			}
+		});
+	}
+	
+	private void initRemoveButtons() {  //cria um botão remove em cada linha da tabela para apagar o departamento que quiser //o método é chamado lá no updateTableView
+		tableColumnREMOVE.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		tableColumnREMOVE.setCellFactory(param -> new TableCell<Department, Department>() {
+			private final Button button = new Button("remove");
+
+			@Override
+				protected void updateItem(Department obj, boolean empty) {
+				super.updateItem(obj, empty);
+				if (obj == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(event -> removeEntity(obj));  //chama o método abaixo
+			}
+		});
+	}
+
+	private void removeEntity(Department obj) {
+		Optional<ButtonType> result = Alerts.showConfirmation("Confirmation", "Are you sure to delete?");  //mostra um alert p usuário
+
+		if (result.get() == ButtonType.OK) {  //o get chama o objeto dentro do objeto Optional
+			if (service == null) {
+				throw new IllegalStateException("Service was null");  //o programador esqueceu de injetar
+			}
+			try { 
+				service.remove(obj);  //remove
+				updateTableView();  //atualiza
+			}
+			catch (DbIntegrityException e) {
+				Alerts.showAlert("Error removing object", null, e.getMessage(), AlertType.ERROR);  //se tiver chave estrangeira (seller) ele não deixa remover
+			}
+		}
+	}
+}
