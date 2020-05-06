@@ -29,6 +29,14 @@ public class Utils {
 		}
 	}
 
+	public static Double tryParseToDouble(String str) {
+		try {
+			return Double.parseDouble(str);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
 	//https://stackoverflow.com/questions/47484280/format-of-date-in-the-javafx-tableview
 	public static <T> void formatTableColumnDate(TableColumn<T, Date> tableColumn, String format) { // formatar data  //profe não explicou Crtl+C Ctrl+V
 		tableColumn.setCellFactory(column -> {
